@@ -28,6 +28,7 @@ values."
      better-defaults
      emacs-lisp
      git
+     github
      markdown
      org
      ;; (shell :variables
@@ -279,6 +280,8 @@ before packages are loaded. If you are unsure, you should try in setting them in
 
   (add-to-list 'auto-mode-alist '("\\.es6\\'" . js2-mode)) (add-hook 'hack-local-variables-hook (lambda () (setq truncate-lines t)))
   (add-to-list 'auto-mode-alist '("\\.mrb\\'" . ruby-mode))
+  ;; use react-mode for .js
+  (push '("\\.js\\'" . react-mode) auto-mode-alist)
 
   ;;_ is now part of a word
   (defadvice evil-inner-word (around underscore-as-word activate)
@@ -301,11 +304,21 @@ before packages are loaded. If you are unsure, you should try in setting them in
    web-mode-code-indent-offset 2
    web-mode-attr-indent-offset 2)
 
-  ;; autocomplete
-  (global-company-mode)
+  ;; ruby
+  (setq ruby-insert-encoding-magic-comment nil)
 
-  ;; use react-mode for .js
-  (push '("\\.js\\'" . react-mode) auto-mode-alist)
+  ;; evil save
+  (evil-ex-define-cmd "W" 'save-buffer)
+
+  ;; auto-complete
+  (global-company-mode)
+  (let ((map company-active-map))
+    ;; use TAB to auto-complete instead of RET
+    (define-key map [return] 'nil)
+    (define-key map (kbd "RET") 'nil)
+    (define-key map [tab] 'company-complete)
+    (define-key map (kbd "TAB") 'company-complete-selection)
+    (define-key map (kbd "<tab>") 'company-complete-selection)
   )
 
 ;; Do not write anything past this comment. This is where Emacs will
