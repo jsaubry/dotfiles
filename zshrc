@@ -18,8 +18,12 @@ alias devuv='devu && devv'
 alias devuv='devdu && devv'
 alias t="dev test"
 alias g="git"
-alias my="mycli -u root -h 127.0.0.1 shopify_dev -P $MYSQL_PORT"
-alias mys="mycli -u root -h 127.0.0.1 shopify_dev_shard_0 -P $MYSQL_PORT"
+my() {
+  mycli -u root -h 127.0.0.1 shopify_dev -P $MYSQL_PORT
+}
+mys() {
+  mycli -u root -h 127.0.0.1 shopify_dev_shard_0 -P $MYSQL_PORT
+}
 
 export EDITOR='vim'
 
@@ -29,6 +33,9 @@ bindkey fd vi-cmd-mode
 export KEYTIMEOUT=1
 bindkey '^E' end-of-line
 bindkey '^A' beginning-of-line
+
+# fzf
+source /usr/share/doc/fzf/examples/key-bindings.zsh
 
 # Don't save commands starting with a space
 setopt HIST_IGNORE_SPACE
