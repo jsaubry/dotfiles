@@ -35,7 +35,7 @@ bindkey '^E' end-of-line
 bindkey '^A' beginning-of-line
 
 # fzf
-source /usr/share/doc/fzf/examples/key-bindings.zsh
+source ~/dotfiles/fzf.zsh
 
 # Don't save commands starting with a space
 setopt HIST_IGNORE_SPACE
