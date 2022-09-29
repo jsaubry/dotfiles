@@ -14,6 +14,7 @@ alias devc='dev c'
 alias devuc='dev u && dev c'
 alias devduc='dev d && dev u && dev c'
 alias devv='dev typecheck && dev style --include-branch-commits && devt'
+alias devvv='dev typecheck && dev style && dev t'
 alias devuv='devu && devv'
 alias devuv='devdu && devv'
 alias t="dev test"
