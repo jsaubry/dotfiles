@@ -19,6 +19,7 @@ alias devuv='devu && devv'
 alias devuv='devdu && devv'
 alias t="dev test"
 alias g="git"
+alias secrets="systemctl restart gcs-secrets.service template-config.service"
 my() {
   mycli -u root -h 127.0.0.1 shopify_dev -P $MYSQL_PORT
 }
