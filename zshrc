@@ -27,6 +27,15 @@ my() {
 mys() {
   mycli -u root -h 127.0.0.1 shopify_dev_shard_0 -P $MYSQL_PORT
 }
+bump() {
+  git s main
+  git pull
+
+  local date=$(date +"%m-%d-%Y")
+  git switch -c "bump-$date"
+
+  update && bundle update && dev update-rbis && devvv && git A && git cm "Bump" && g pu && dev open pr
+}
 
 export EDITOR='vim'
 
