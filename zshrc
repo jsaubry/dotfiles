@@ -41,6 +41,8 @@ export EDITOR='vim'
 
 bindkey -v
 bindkey fd vi-cmd-mode
+bindkey    "^[[3~"          delete-char
+bindkey    "^[3;5~"         delete-char
 # Timeout after escape
 export KEYTIMEOUT=1
 bindkey '^E' end-of-line
