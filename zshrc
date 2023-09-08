@@ -17,7 +17,13 @@ alias devv='dev typecheck && dev style --include-branch-commits && devt'
 alias devvv='dev typecheck && dev style -a && dev t'
 alias devuv='devu && devv'
 alias devuv='devdu && devv'
-alias t="dev test"
+function t {
+    if [ -f "package.json" ]; then
+        yarn test --silent "$@"
+    else
+        dev test "$@"
+    fi
+}
 alias g="git"
 alias secrets="systemctl restart gcs-secrets.service template-config.service"
 alias tap="bin/tapioca"
