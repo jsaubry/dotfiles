@@ -16,16 +16,13 @@
   amend   = commit -S --amend --date=now --reuse-message HEAD
   puf     = "!git push --force-with-lease=\"$(git rev-parse --abbrev-ref HEAD)\""
   pu      = "!git push -u origin \"$(git rev-parse --abbrev-ref HEAD)\""
-  bm      = "branch --merged"
   br      = "branch"
   bd      = "branch -d"
   bD      = "branch -D"
-  d       = "!f() { [ -z \"$GIT_PREFIX\" ] || cd \"$GIT_PREFIX\" && git diff --color \"$@\" | diff-so-fancy  | less --tabs=4 -RFX; }; f"
   dc      = "diff --cached"
-#  dc      = "!f() { [ -z \"$GIT_PREFIX\" ] || cd \"$GIT_PREFIX\" && git diff --cached --color \"$@\" | diff-so-fancy  | less --tabs=4 -RFX; }; f"
-  fix     = "!git commit --fixup $(git cherry -v master $(git rev-parse --abbrev-ref HEAD) | fzf | cut -d' ' -f2)"
-  sstash = "!bash -c \"git stash --keep-index; git stash push -m \"staged\" --keep-index; git stash pop stash@{1}\""
-  onto    = "!git rebase --onto \"$1\" \"$2\" \"$(git rev-parse --abbrev-ref HEAD)\""
+  default-branch = "!f() { if $(git rev-parse --verify master > /dev/null 2>&1); then echo master; else echo main; fi }; f"
+  fixup = "!git commit --fixup $(git log --oneline -v $(git rev-parse --abbrev-ref HEAD) ^origin/$(git default-branch) | fzf | cut -d' ' -f1)"
+  rf = "!git rebase -i HEAD~$(git log --oneline -v $(git rev-parse --abbrev-ref HEAD) ^origin/$(git default-branch) | wc -l) --autosquash"
 [diff]
   tool = smerge
 [pull]
