@@ -19,10 +19,10 @@ alias devvv='dev typecheck && dev style -a && dev t'
 alias devuv='devu && devv'
 alias devuv='devdu && devv'
 function t {
-    if [ -f "package.json" ]; then
-        yarn test --silent "$@"
-    else
+    if [ -f "Gemfile" ]; then
         dev test "$@"
+    else
+        yarn test --silent "$@"
     fi
 }
 alias g="git"
