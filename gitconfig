@@ -7,6 +7,7 @@
 [alias]
   st      = status
   lg      = log --graph --abbrev-commit --decorate --format=format:'%C(bold blue)%h%C(reset) - %C(bold green)(%ar)%C(reset) %C(white)%s%C(reset) %C(dim white)- %an%C(reset)%C(bold yellow)%d%C(reset)' --all
+  lgg      = log --graph --abbrev-commit --decorate --format=format:'%C(bold blue)%h%C(reset) - %C(bold green)(%ar)%C(reset) %C(white)%s%C(reset) %C(dim white)- %an%C(reset)%C(bold yellow)%d%C(reset)'
   co      = checkout
   s       = switch
   ca      = commit -S -am
@@ -23,6 +24,15 @@
   default-branch = "!f() { if $(git rev-parse --verify master > /dev/null 2>&1); then echo master; else echo main; fi }; f"
   fixup = "!git commit --fixup $(git log --oneline -v $(git rev-parse --abbrev-ref HEAD) ^origin/$(git default-branch) | fzf | cut -d' ' -f1)"
   rf = "!git rebase -i HEAD~$(git log --oneline -v $(git rev-parse --abbrev-ref HEAD) ^origin/$(git default-branch) | wc -l) --autosquash"
+  fr     = "!git fetch origin $(git rev-parse --abbrev-ref HEAD) && git rebase"
+  fmr = "!f() { \
+      current_branch=$(git branch --show-current); \
+      git switch main && \
+      git fr && \
+      git switch \"$current_branch\" && \
+      git rebase main; \
+  }; f"
+  prune-branches = \\!git fetch --prune && git branch -vv | grep \": gone]\" | awk \"{print \\$1}\" | xargs git branch -D
 [diff]
   tool = smerge
 [pull]
@@ -38,5 +48,45 @@
   defaultBranch = main
 [include]
   path = /Users/jsaubry/.config/dev/gitconfig
+  path = /Users/js/.config/dev/gitconfig
 [commit]
   gpgsign = true
+[rebase]
+  autosquash = true
+
+# New shits
+[column]
+  ui = auto
+[branch]
+  sort = -committerdate
+[tag]
+  sort = version:refname
+[init]
+  defaultBranch = main
+[diff]
+  algorithm = histogram
+  colorMoved = plain
+  mnemonicPrefix = true
+  renames = true
+[push]
+  default = simple
+  autoSetupRemote = true
+  followTags = true
+[fetch]
+  prune = true
+  pruneTags = true
+[commit]
+  verbose = true
+[rebase]
+  autoStash = true
+  updateRefs = true
+
+[core]
+  fsmonitor = true
+  untrackedCache = true
+	excludesFile = ~/.gitignore
+[merge]
+  conflictstyle = zdiff3
+[maintenance]
+	repo = /Users/js/world/trees/root/src
+	repo = /Users/js/world/trees/ws0/src

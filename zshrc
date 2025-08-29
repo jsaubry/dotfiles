@@ -1,4 +1,11 @@
-alias gclean='git branch --merged main | grep -v "\* main" | grep -v ".*main" | xargs -n 1 git branch -d'
+# Enable Powerlevel10k instant prompt. Should stay close to the top of ~/.zshrc.
+# Initialization code that may require console input (password prompts, [y/n]
+# confirmations, etc.) must go above this block; everything else may go below.
+if [[ -r "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh" ]]; then
+  source "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh"
+fi
+
+alias gclean='git remote prune origin && git branch -vv | grep "\[origin/.*: gone\]" | awk "{print \$1}" | xargs git branch -D'
 
 alias devdus='dev down && dev up && dev s'
 alias devdut='dev down && dev up && dev t'
@@ -16,7 +23,6 @@ alias devur='dev up && dev restart'
 alias devduc='dev d && dev u && dev c'
 alias devv='dev typecheck && dev style --include-branch-commits && devt'
 alias devvv='dev typecheck && dev style -a && dev t'
-alias devuv='devu && devv'
 alias devuv='devdu && devv'
 function t {
     if [ -f "Gemfile" ]; then
@@ -26,7 +32,6 @@ function t {
     fi
 }
 alias g="git"
-alias secrets="systemctl restart gcs-secrets.service template-config.service"
 alias tap="bin/tapioca"
 my() {
   mycli -u root -h 127.0.0.1 shopify_dev -P $MYSQL_PORT
@@ -43,6 +48,13 @@ bump() {
 
   update && bundle update && dev update-rbis && devvv && git A && git cm "Bump" && g pu && dev open pr
 }
+shipped() {
+  dev cd //areas/core/shopify
+  dev conveyor is-it-shipped "$@"
+}
+killz() {
+  kill -9 %1
+}
 
 export EDITOR='vim'
 
@@ -55,13 +67,11 @@ export KEYTIMEOUT=1
 bindkey '^E' end-of-line
 bindkey '^A' beginning-of-line
 
-# fzf
-source ~/dotfiles/fzf.zsh
-
 # Don't save commands starting with a space
 setopt HIST_IGNORE_SPACE
 
 export PATH=$PATH:~/Projects/bin
+export PATH=$PATH:~/dotfiles/bin
 
 # Use arrow for history search
 autoload -U up-line-or-beginning-search
@@ -70,3 +80,26 @@ zle -N up-line-or-beginning-search
 zle -N down-line-or-beginning-search
 bindkey "^[[A" up-line-or-beginning-search # Up
 bindkey "^[[B" down-line-or-beginning-search # Down
+
+[[ -x /opt/homebrew/bin/brew ]] && eval $(/opt/homebrew/bin/brew shellenv)
+[ -f /opt/dev/dev.sh ] && source /opt/dev/dev.sh
+[[ -f /opt/dev/sh/chruby/chruby.sh ]] && { type chruby >/dev/null 2>&1 || chruby () { source /opt/dev/sh/chruby/chruby.sh; chruby "$@"; } }
+
+if command -v tmux &> /dev/null && [ -z "$TMUX" ]; then
+  tmux attach-session -t default || tmux new-session -s default
+fi
+
+source "${ZDOTDIR:-$HOME}/.zprezto/init.zsh"
+
+# fzf
+source ~/dotfiles/fzf.zsh
+
+# cloudplatform: add Shopify clusters to your local kubernetes config
+export KUBECONFIG=${KUBECONFIG:+$KUBECONFIG:}/Users/js/.kube/config:/Users/js/.kube/config.shopify.cloudplatform
+
+# To customize prompt, run `p10k configure` or edit ~/.p10k.zsh.
+[[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh
+
+# History
+HISTSIZE=$(( 2**31 - 1 ))
+SAVEHIST=$HISTSIZE
