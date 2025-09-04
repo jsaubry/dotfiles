@@ -388,7 +388,32 @@
       # Otherwise show the first 12 … the last 12.
       # Tip: To always show local branch name in full without truncation, delete the next line.
       (( $#branch > 32 )) && branch[13,-13]="…"  # <-- this line
-      res+="${clean}${(g::)POWERLEVEL9K_VCS_BRANCH_ICON}${branch//\%/%%}"
+      
+      # Add worktree name if in a worktree
+      local worktree_info=""
+      if command -v git &>/dev/null; then
+        # Get the git directory path
+        local git_dir=$(git rev-parse --git-dir 2>/dev/null)
+        if [[ "$git_dir" == *"/worktrees/"* ]]; then
+          # We're in a worktree, get the actual worktree path
+          local worktree_path=$(git rev-parse --show-toplevel 2>/dev/null)
+          if [[ -n "$worktree_path" ]]; then
+            # Extract worktree name from path like /Users/js/world/trees/ws1/src
+            # Look for pattern /trees/NAME/ and extract NAME
+            if [[ "$worktree_path" == */trees/* ]]; then
+              local temp="${worktree_path#*/trees/}"
+              local worktree_name="${temp%%/*}"
+              worktree_info="${meta}[${clean}${worktree_name}${meta}] "
+            else
+              # Fallback: use the parent directory name of the worktree
+              local parent_dir="${worktree_path:h:t}"
+              worktree_info="${meta}[${clean}${parent_dir}${meta}] "
+            fi
+          fi
+        fi
+      fi
+      
+      res+="${worktree_info}${clean}${(g::)POWERLEVEL9K_VCS_BRANCH_ICON}${branch//\%/%%}"
     fi
 
     if [[ -n $VCS_STATUS_TAG
