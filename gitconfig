@@ -84,7 +84,6 @@
 [core]
   fsmonitor = true
   untrackedCache = true
-	excludesFile = ~/.gitignore
 [merge]
   conflictstyle = zdiff3
 [maintenance]

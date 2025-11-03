@@ -40,7 +40,7 @@
   # automatically hidden when the input line reaches it. Right prompt above the
   # last prompt line gets hidden if it would overlap with left prompt.
   typeset -g POWERLEVEL9K_RIGHT_PROMPT_ELEMENTS=(
-    vcs                     # git status
+    my_git                  # custom git status (works with reftable and normal repos)
     status                  # exit code of the last command
     command_execution_time  # duration of the last command
     background_jobs         # presence of background jobs
@@ -387,32 +387,20 @@
       # If local branch name is at most 32 characters long, show it in full.
       # Otherwise show the first 12 … the last 12.
       # Tip: To always show local branch name in full without truncation, delete the next line.
-      (( $#branch > 32 )) && branch[13,-13]="…"  # <-- this line
-      
+      (( $#branch > 32 )) && branch[13,-13]="…"
+
       # Add worktree name if in a worktree
       local worktree_info=""
-      if command -v git &>/dev/null; then
-        # Get the git directory path
-        local git_dir=$(git rev-parse --git-dir 2>/dev/null)
-        if [[ "$git_dir" == *"/worktrees/"* ]]; then
-          # We're in a worktree, get the actual worktree path
-          local worktree_path=$(git rev-parse --show-toplevel 2>/dev/null)
-          if [[ -n "$worktree_path" ]]; then
-            # Extract worktree name from path like /Users/js/world/trees/ws1/src
-            # Look for pattern /trees/NAME/ and extract NAME
-            if [[ "$worktree_path" == */trees/* ]]; then
-              local temp="${worktree_path#*/trees/}"
-              local worktree_name="${temp%%/*}"
-              worktree_info="${meta}[${clean}${worktree_name}${meta}] "
-            else
-              # Fallback: use the parent directory name of the worktree
-              local parent_dir="${worktree_path:h:t}"
-              worktree_info="${meta}[${clean}${parent_dir}${meta}] "
-            fi
-          fi
+      if [[ -n $VCS_STATUS_WORKDIR ]]; then
+        # Extract worktree name from path like /Users/js/world/trees/ws1/src
+        # Look for pattern /trees/NAME/ and extract NAME
+        if [[ "$VCS_STATUS_WORKDIR" == */trees/* ]]; then
+          local temp="${VCS_STATUS_WORKDIR#*/trees/}"
+          local worktree_name="${temp%%/*}"
+          worktree_info="${meta}[${clean}${worktree_name}${meta}] "
         fi
       fi
-      
+
       res+="${worktree_info}${clean}${(g::)POWERLEVEL9K_VCS_BRANCH_ICON}${branch//\%/%%}"
     fi
 
@@ -500,10 +488,10 @@
   typeset -g POWERLEVEL9K_VCS_DISABLED_WORKDIR_PATTERN='~'
 
   # Disable the default Git status formatting.
-  typeset -g POWERLEVEL9K_VCS_DISABLE_GITSTATUS_FORMATTING=true
+  typeset -g POWERLEVEL9K_VCS_DISABLE_GITSTATUS_FORMATTING=false
   # Install our own Git status formatter.
-  typeset -g POWERLEVEL9K_VCS_CONTENT_EXPANSION='${$((my_git_formatter(1)))+${my_git_format}}'
-  typeset -g POWERLEVEL9K_VCS_LOADING_CONTENT_EXPANSION='${$((my_git_formatter(0)))+${my_git_format}}'
+  # typeset -g POWERLEVEL9K_VCS_CONTENT_EXPANSION='${$((my_git_formatter(1)))+${my_git_format}}'
+  # typeset -g POWERLEVEL9K_VCS_LOADING_CONTENT_EXPANSION='${$((my_git_formatter(0)))+${my_git_format}}'
   # Enable counters for staged, unstaged, etc.
   typeset -g POWERLEVEL9K_VCS_{STAGED,UNSTAGED,UNTRACKED,CONFLICTED,COMMITS_AHEAD,COMMITS_BEHIND}_MAX_NUM=-1
 
@@ -1666,6 +1654,21 @@
   # Type `p10k help segment` for documentation and a more sophisticated example.
   function prompt_example() {
     p10k segment -f 208 -i '⭐' -t 'hello, %n'
+  }
+
+  function prompt_my_git() {
+    local branch=$(git branch --show-current 2>/dev/null)
+    if [[ -n $branch ]]; then
+      local worktree_name=""
+      local git_dir=$(git rev-parse --show-toplevel 2>/dev/null)
+      if [[ "$git_dir" == */trees/* ]]; then
+        local temp="${git_dir#*/trees/}"
+        worktree_name="${temp%%/*}"
+        p10k segment -f 76 -t "[$worktree_name] $branch"
+      else
+        p10k segment -f 76 -t "$branch"
+      fi
+    fi
   }
 
   # User-defined prompt segments may optionally provide an instant_prompt_* function. Its job

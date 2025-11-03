@@ -1,3 +1,9 @@
+[[ -x /opt/homebrew/bin/brew ]] && eval $(/opt/homebrew/bin/brew shellenv)
+[ -f /opt/dev/dev.sh ] && source /opt/dev/dev.sh
+[[ -f /opt/dev/sh/chruby/chruby.sh ]] && { type chruby >/dev/null 2>&1 || chruby () { source /opt/dev/sh/chruby/chruby.sh; chruby "$@"; } }
+
+[[ "${CURSOR_AGENT-}" = 1 ]] && return
+
 # Enable Powerlevel10k instant prompt. Should stay close to the top of ~/.zshrc.
 # Initialization code that may require console input (password prompts, [y/n]
 # confirmations, etc.) must go above this block; everything else may go below.
@@ -24,6 +30,7 @@ alias devduc='dev d && dev u && dev c'
 alias devv='dev typecheck && dev style --include-branch-commits && devt'
 alias devvv='dev typecheck && dev style -a && dev t'
 alias devuv='devdu && devv'
+alias dxc='devx claude --dangerously-skip-permissions --verbose'
 function t {
     if [ -f "Gemfile" ]; then
         dev test "$@"
@@ -55,6 +62,12 @@ shipped() {
 killz() {
   kill -9 %1
 }
+enable_flag() {
+  dev verdict configure_flag "$@" -f --percent=100
+}
+disable_flag() {
+  dev verdict configure_flag "$@" -f --percent=0
+}
 
 export EDITOR='vim'
 
@@ -81,10 +94,6 @@ zle -N down-line-or-beginning-search
 bindkey "^[[A" up-line-or-beginning-search # Up
 bindkey "^[[B" down-line-or-beginning-search # Down
 
-[[ -x /opt/homebrew/bin/brew ]] && eval $(/opt/homebrew/bin/brew shellenv)
-[ -f /opt/dev/dev.sh ] && source /opt/dev/dev.sh
-[[ -f /opt/dev/sh/chruby/chruby.sh ]] && { type chruby >/dev/null 2>&1 || chruby () { source /opt/dev/sh/chruby/chruby.sh; chruby "$@"; } }
-
 if command -v tmux &> /dev/null && [ -z "$TMUX" ]; then
   tmux attach-session -t default || tmux new-session -s default
 fi
@@ -103,3 +112,7 @@ export KUBECONFIG=${KUBECONFIG:+$KUBECONFIG:}/Users/js/.kube/config:/Users/js/.k
 # History
 HISTSIZE=$(( 2**31 - 1 ))
 SAVEHIST=$HISTSIZE
+alias cdx='OPENAI_BASE_URL=https://proxy-shopify-ai.local.shop.dev/v1 codex'
+
+# Added by tec agent
+[[ -x /Users/js/.local/state/tec/profiles/base/current/global/init ]] && eval "$(/Users/js/.local/state/tec/profiles/base/current/global/init zsh)"
